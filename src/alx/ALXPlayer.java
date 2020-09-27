@@ -17,9 +17,11 @@ public class ALXPlayer extends Player {
     }
 
     public void getAction(ArrayList<Cards> cards) {
-        Pair<PlayerAction, Cards> play = alxControl.getSimPlayAction(wonder.name, cards);
-        action = play.getKey();
-        lastCard = play.getValue();
+        ALXPlay play = alxControl.getSimPlayAction(wonder.name, cards);
+        action = play.getAct();
+        lastCard = play.getCard();
+        leftCost= play.getLeftCost();
+        rightCost=play.getRightCost();
         playedCard = lastCard;
     }
 

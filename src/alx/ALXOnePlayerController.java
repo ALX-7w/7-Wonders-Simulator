@@ -23,6 +23,17 @@ public class ALXOnePlayerController extends ALXController{
     private PlayerAction cardUsing;
     HashMap<String, Pair<PlayerAction, Cards>> plays;
     private boolean playsUpToDate;
+    HashMap<String, Integer> moneyMove;
+
+    public void setLeftCost(int leftCost) {
+        this.leftCost = leftCost;
+    }
+
+    public void setRightCost(int rightCost) {
+        this.rightCost = rightCost;
+    }
+
+    private int leftCost, rightCost;
 
 
     public void setCardUsing(PlayerAction cardUsing) {
@@ -60,6 +71,11 @@ public class ALXOnePlayerController extends ALXController{
         this.played = played;
     }
 
+    public void setPlayed(Cards played, int leftCost, int rightCost) {
+        this.played = played;
+        this.leftCost = leftCost;
+        this.rightCost = rightCost;
+    }
 
     public void setSide(boolean side) {
         this.side = side;
@@ -83,7 +99,7 @@ public class ALXOnePlayerController extends ALXController{
         simPlayers.put(player.wonder.name, player);
     }
 
-    public Pair<PlayerAction, Cards> getSimPlayAction(String wonderName, ArrayList<Cards> hand){
+    public ALXPlay getSimPlayAction(String wonderName, ArrayList<Cards> hand){
         actionLock.lock();
         waitedAction = Action.PLAY;
         this.hand = hand;
@@ -103,7 +119,7 @@ public class ALXOnePlayerController extends ALXController{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return (new Pair(cardUsing, played));
+        return (new ALXPlay(cardUsing, played, leftCost, rightCost));
     }
 
     public void checkIfStarted(){
@@ -143,8 +159,8 @@ public class ALXOnePlayerController extends ALXController{
         }
     }
 
-    public void playCard(Cards c, PlayerAction using){
-        setPlayed(c);
+    public void playCard(Cards c, PlayerAction using, int leftCost, int rightCost){
+        setPlayed(c, leftCost, rightCost);
         setCardUsing(using);
         synchronized (bell){
             bell.notify();
@@ -309,11 +325,11 @@ public class ALXOnePlayerController extends ALXController{
     }
 
 
-    public HashMap<String, Pair<PlayerAction, Cards>> getPlays() {
+    public Pair<HashMap<String, Pair<PlayerAction, Cards>>, HashMap<String, Integer>> getPlaysAndMoneyMove() {
         synchronized (plays){
             if(playsUpToDate){
                 playsUpToDate = false;
-                return plays;
+                return new Pair(plays, moneyMove);
             }
             else{
                 try {
@@ -322,15 +338,16 @@ public class ALXOnePlayerController extends ALXController{
                     e.printStackTrace();
                 }
                 playsUpToDate = false;
-                return plays;
+                return new Pair(plays, moneyMove);
             }
         }
     }
 
-    public void setPlays(HashMap<String, Pair<PlayerAction, Cards>> plays) {
+    public void setPlays(HashMap<String, Pair<PlayerAction, Cards>> plays, HashMap<String, Integer> moneyMove) {
         synchronized (plays){
             playsUpToDate = true;
             this.plays = plays;
+            this.moneyMove = moneyMove;
         }
     }
 }

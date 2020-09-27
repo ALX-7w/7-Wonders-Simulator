@@ -16,7 +16,7 @@ public abstract class ALXController {
 
     public abstract void registerSimPlayer(ALXPlayer player);
 
-    public abstract Pair<PlayerAction, Cards> getSimPlayAction(String wonderName, ArrayList<Cards> hand);
+    public abstract ALXPlay getSimPlayAction(String wonderName, ArrayList<Cards> hand);
 
     public abstract Boolean getWonderSide(Wonder w);
 

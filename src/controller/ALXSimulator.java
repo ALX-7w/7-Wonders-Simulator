@@ -1,6 +1,5 @@
 package controller;
 
-import alx.ALXDefaultController;
 import alx.ALXOnePlayerController;
 import model.Wonder;
 
