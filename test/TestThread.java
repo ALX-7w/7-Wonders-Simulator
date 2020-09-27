@@ -21,8 +21,8 @@ public class TestThread extends Thread{
             a = c.getWaitedAction();
             //System.out.println("Waited : "+a);
             if(a== Action.PLAY){
-                c.playCard(c.getHand().get(r.nextInt(c.getHand().size())), PlayerAction.CARD);
-                System.out.println("Plays :" + c.getPlays());
+                c.playCard(c.getHand().get(r.nextInt(c.getHand().size())), PlayerAction.CARD, 0, 0);
+                System.out.println("Plays :" + c.getPlaysAndMoneyMove());
             }
             if(a== Action.WONDER_SIDE){
                 c.setSide(true);

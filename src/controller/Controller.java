@@ -1,7 +1,6 @@
 package controller;
 
 import alx.ALXController;
-import alx.ALXDefaultController;
 import alx.ALXOnePlayerController;
 import alx.ALXPlayer;
 import javafx.util.Pair;
@@ -32,6 +31,7 @@ public class Controller {
 	public ArrayList<Integer> lastWinner;
 	public Player[] lastPlayers;
 	public ALXOnePlayerController alxCon;
+	private HashMap<String, Integer> moneyMove;
 
 	public Controller(CardView cv) {
 		Cards.buildDependencyMap();
@@ -70,6 +70,8 @@ public class Controller {
 			else if (pp.wonder.startingResource==ResourceType.LOOM) {int[] r={3125};pp.left.addNeighborResource(r,false,false);pp.right.addNeighborResource(r,true,false);}
 			else if (pp.wonder.startingResource==ResourceType.PAPYRUS) {int[] r={15625};pp.left.addNeighborResource(r,false,false);pp.right.addNeighborResource(r,true,false);}
 		}
+		moneyMove = new HashMap<>();
+		for (int i=0;i<numPlayers;i++) moneyMove.put(p[i].wonder.name, 0);
 		for (int age=1;age<=3;age++) {
 			com.displayAge(age);
 			shuffleCards(c,age);
@@ -94,7 +96,7 @@ public class Controller {
 					}
 					plays.put(p[k].wonder.name, new Pair<PlayerAction, Cards>(p[k].action, kCard));
 				}
-				alxCon.setPlays(plays);
+				for(String k : moneyMove.keySet()) moneyMove.put(k,0);
 				for (Player pp:p) resolvePlayerOutcome(pp,discardPile);
 				if (j!=5) {
 					for (Player pp:p) {
@@ -105,6 +107,7 @@ public class Controller {
 					}
 					com.updateView();
 				}
+				alxCon.setPlays(plays, moneyMove);
 			}
 			for (int k=0;k<numPlayers;k++) {
 				ArrayList<Cards> remainingCards;
@@ -226,12 +229,15 @@ public class Controller {
 			pp.numCoin-=pp.leftCost;
 			pp.left.numCoin+=pp.leftCost;
 			com.displayPayment("Player "+pp.id,"Player "+pp.left.id,pp.leftCost);
+			moneyMove.put(pp.left.wonder.name, moneyMove.get(pp.left.wonder.name)+ pp.leftCost);
 		}
 		if (pp.rightCost>0) {
 			pp.numCoin-=pp.rightCost;
 			pp.right.numCoin+=pp.rightCost;
 			com.displayPayment("Player "+pp.id,"Player "+pp.right.id,pp.rightCost);
+			moneyMove.put(pp.right.wonder.name, moneyMove.get(pp.right.wonder.name)+ pp.rightCost);
 		}
+		moneyMove.put(pp.wonder.name, moneyMove.get(pp.wonder.name)- pp.leftCost - pp.rightCost);
 		if (pp.action==PlayerAction.CARD) {
 			pp.numCoin-=pp.lastCard.costCoin;
 			pp.playedCards.add(pp.lastCard);
