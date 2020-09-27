@@ -1,5 +1,10 @@
 package controller;
 
+import alx.ALXController;
+import alx.ALXDefaultController;
+import alx.ALXOnePlayerController;
+import alx.ALXPlayer;
+import javafx.util.Pair;
 import model.Cards;
 import model.CardType;
 import model.Wonder;
@@ -8,27 +13,29 @@ import model.PlayerAction;
 import model.Bot;
 import model.WonderStage;
 import model.ResourceType;
-import model.NeighborResource;
 import view.CommandLine;
 import view.CardView;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
-import java.util.HashSet;
 
 public class Controller {
 
 	public static Random random = new Random();
 	public CardView com;
-	public static boolean manualSimulation=true;
+	public static boolean manualSimulation=false;
+	public static boolean alxSimulation=true;
 	public static int defaultNumPlayers=7;
 	public static String defaultWonder = "ALEXANDRIA";
 	public ArrayList<Integer> lastScore;
 	public ArrayList<Integer> lastWinner;
 	public Player[] lastPlayers;
+	public ALXOnePlayerController alxCon;
 
 	public Controller(CardView cv) {
 		Cards.buildDependencyMap();
+		alxCon = new ALXOnePlayerController();
 		if (cv!=null) com=cv;
 		if (manualSimulation) {
 			if (cv==null) com = new CommandLine(true);
@@ -47,7 +54,9 @@ public class Controller {
 		if (manualSimulation) {
 			p[0]=new Player(0,w[0],com);
 			System.out.println("Player has "+w[0].name);
-		} 
+		} else if (alxSimulation){
+			p[0] = new ALXPlayer(0, w[0], com, alxCon);
+		}
 		else p[0]=new Bot(0,w[0],com);
 		for (int i=1;i<numPlayers;i++) p[i]=new Bot(i,w[i],com);
 		p[0].right=p[numPlayers-1]; p[numPlayers-1].left=p[0];
@@ -71,12 +80,21 @@ public class Controller {
 				if (p[j].hasFreeBuild==0) p[j].hasFreeBuild=1;
 			}
 			for (int j=0;j<6;j++) {
+				HashMap<String, Pair<PlayerAction, Cards>> plays = new  HashMap<String, Pair<PlayerAction, Cards>>();
 				com.displayTurn(j+1);
 				for(int k=0;k<numPlayers;k++) {
 					com.displayPlayerName(""+k);
-					if (age==1||age==3) p[k].getAction(cc[(j+numPlayers-k)%numPlayers]);
+					if (age==1||age==3){
+						p[k].getAction(cc[(j+numPlayers-k)%numPlayers]);
+					}
 					else p[k].getAction(cc[(k+j)%numPlayers]);
+					Cards kCard = null;
+					if(p[k].action==PlayerAction.CARD){
+						kCard = p[k].playedCard;
+					}
+					plays.put(p[k].wonder.name, new Pair<PlayerAction, Cards>(p[k].action, kCard));
 				}
+				alxCon.setPlays(plays);
 				for (Player pp:p) resolvePlayerOutcome(pp,discardPile);
 				if (j!=5) {
 					for (Player pp:p) {

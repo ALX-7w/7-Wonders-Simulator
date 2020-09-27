@@ -32,6 +32,7 @@ public class Player {
 	public boolean canCopyGuild=false;
 	public boolean canPlayLastCard=false;
 	public boolean canPlayFromDiscard=false;
+	public Cards playedCard;
 
 	public Player(int id,Wonder w,CardView v) {
 		this.id=id;
@@ -51,6 +52,27 @@ public class Player {
 		selectWonderSide();
 	}
 
+	public Player(int id,Wonder w,CardView v, Boolean pickWonderSide) {
+		this.id=id;
+		this.wonder=w;
+		this.view=v;
+		this.playedCards=new ArrayList<Cards>();
+		this.numCoin=3;
+		switch (w.startingResource) {
+			case CLAY: numClay++; break;
+			case ORE: numOre++; break;
+			case STONE: numStone++; break;
+			case WOOD: numWood++; break;
+			case GLASS: numGlass++; break;
+			case LOOM: numLoom++; break;
+			case PAPYRUS: numPapyrus++; break;
+		}
+		if(pickWonderSide){
+			selectWonderSide();
+		}
+
+	}
+
 	public void selectWonderSide() {
 		view.selectWonderSide(this);
 	}
@@ -60,6 +82,7 @@ public class Player {
 		canBuildWonder=checkWonder();
 		action = PlayerAction.CARD;
 		int cardPlayed = -1;
+		playedCard = cards.get(cardPlayed);
 		view.displayCards(cards,playableCost);
 		view.displayResources(this);
 		view.selectAction(this,cards);
